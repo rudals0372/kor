@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MJ81</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-top: 30px;
+            color: #333;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);  /* 한 줄에 두 개 */
+            gap: 20px;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 130px;  /* 카드의 너비 설정 */
+            height: 130px; /* 카드의 높이 설정 (정사각형) */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .card img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .fa {
+            font-size: 36px;
+            color: #333;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        video {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .download-btn {
+            margin-top: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .card {
+                padding: 15px;
+                font-size: 14px;
+            }
+
+            .container {
+                grid-template-columns: repeat(2, 1fr); /* 한 줄에 두 개 */
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .card {
+                padding: 15px;
+                font-size: 13px;
+            }
+
+            .container {
+                grid-template-columns: repeat(2, 1fr); /* 모바일에서도 두 개씩 */
+            }
+
+        }
+
+        /* PDF 버튼 스타일 */
+        #pdf-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 두 개씩 정렬 */
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>MJ81</h1>
+
+<div class="container">
+    <!-- PDF 카드 (책 모양 아이콘) -->
+    <div class="card" id="pdf-card">
+        <i class="fa fa-book"></i> <!-- 책 모양 아이콘 -->
+        <h3>매뉴얼</h3>
+    </div>
+
+    <!-- 동영상 카드들 (비디오카메라 아이콘) -->
+    <div class="card" id="video-card1">
+        <i class="fa fa-video-camera"></i> <!-- 비디오카메라 아이콘 -->
+        <h3>밀착검지기 동영상</h3>
+    </div>
+
+    <div class="card" id="video-card2">
+        <i class="fa fa-video-camera"></i> <!-- 비디오카메라 아이콘 -->
+        <h3>동영상 2</h3>
+    </div>
+
+    <div class="card" id="video-card3">
+        <i class="fa fa-video-camera"></i> <!-- 비디오카메라 아이콘 -->
+        <h3>동영상 3</h3>
+    </div>
+</div>
+
+<!-- 비디오 스트리밍 영역 -->
+<div id="video-container" style="display: none;">
+    <h2 id="video-title">비디오 재생</h2> <!-- 동적으로 변경되는 비디오 제목 -->
+    <video id="video-player" controls>
+        <source id="video-source" src="" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <a id="download-link" class="download-btn" href="#" download>동영상 다운로드</a>
+</div>
+
+<!-- PDF 파일 미리보기 버튼 (PDF 관련 코드 그대로 유지) -->
+<div id="pdf-buttons" style="display: none;">
+    <h2>매뉴얼</h2>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/검사기준.pdf')">검사기준 PDF</button>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/노스가동매뉴얼.pdf')">노스가동매뉴얼 PDF</button>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/설치방법.pdf')">설치방법 PDF</button>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/유지보수매뉴얼.pdf')">유지보수매뉴얼 PDF</button>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/유지보수방법.pdf')">유지보수방법 PDF</button>
+</div>
+
+<script>
+    // 비디오 파일 스트리밍
+    function openVideo(videoUrl, videoTitle) {
+        document.getElementById('video-source').src = videoUrl;
+        document.getElementById('video-player').load();
+        document.getElementById('video-container').style.display = 'block';
+        
+        // 비디오 제목 업데이트
+        document.getElementById('video-title').textContent = videoTitle;
+        
+        // 다운로드 링크 업데이트
+        document.getElementById('download-link').href = videoUrl;
+    }
+
+    // PDF 파일 미리보기 열기
+    function openPDF(pdfUrl) {
+        const newWindow = window.open();
+        const viewerUrl = 'https://mozilla.github.io/pdf.js/web/viewer.html?file=' + encodeURIComponent(pdfUrl);
+        newWindow.location.href = viewerUrl;
+    }
+
+    // 카드 클릭 시 비디오 또는 PDF 버튼 표시
+    document.getElementById('video-card1').addEventListener('click', function() {
+        openVideo('https://github.com/rudals0372/k/raw/main/밀착동영상.mp4', '밀착검지기 동영상'); // 제목과 URL 전달
+    });
+
+    document.getElementById('video-card2').addEventListener('click', function() {
+        openVideo('https://github.com/rudals0372/k/raw/main/다른동영상1.mp4', '동영상 2'); // 제목과 URL 전달
+    });
+
+    document.getElementById('video-card3').addEventListener('click', function() {
+        openVideo('https://github.com/rudals0372/k/raw/main/다른동영상2.mp4', '동영상 3'); // 제목과 URL 전달
+    });
+
+    document.getElementById('pdf-card').addEventListener('click', function() {
+        document.getElementById('pdf-buttons').style.display = 'block';
+        document.getElementById('video-container').style.display = 'none';
+    });
+</script>
+
+</body>
+</html>
