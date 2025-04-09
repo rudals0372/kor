@@ -23,7 +23,7 @@
 
         .container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);  /* 기본적으로 두 개씩 배치 */
+            grid-template-columns: repeat(2, 1fr);  /* 한 줄에 두 개 */
             gap: 20px;
             padding: 20px;
             max-width: 1000px;
@@ -88,27 +88,43 @@
             background-color: #555;
         }
 
-        /* PDF 버튼 스타일 */
-        #pdf-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 한 줄에 2개씩 배치 */
-            gap: 20px;
-            margin-top: 20px;
-            padding: 0 20px;
+        video {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            display: block;
+            border-radius: 10px;
         }
 
-        /* 반응형 디자인 (모바일 및 화면 크기 조정 시) */
+        .download-btn {
+            margin-top: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+        }
+
+        /* 반응형 디자인 */
         @media (max-width: 768px) {
             h1 {
                 font-size: 2em;
             }
 
-            .container {
-                grid-template-columns: repeat(2, 1fr); /* 모바일에서 두 개씩 표시 */
+            .card {
+                padding: 15px;
+                font-size: 14px;
             }
 
-            #pdf-buttons {
-                grid-template-columns: repeat(2, 1fr); /* 모바일에서도 2개씩 배열 */
+            .container {
+                grid-template-columns: repeat(2, 1fr); /* 한 줄에 두 개 */
             }
         }
 
@@ -117,13 +133,23 @@
                 font-size: 1.5em;
             }
 
+            .card {
+                padding: 15px;
+                font-size: 13px;
+            }
+
             .container {
                 grid-template-columns: repeat(2, 1fr); /* 모바일에서도 두 개씩 */
             }
 
-            #pdf-buttons {
-                grid-template-columns: repeat(2, 1fr); /* 모바일에서 2개씩 배열 */
-            }
+        }
+
+        /* PDF 버튼 스타일 */
+        #pdf-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 두 개씩 정렬 */
+            gap: 10px;
+            margin-top: 20px;
         }
 
     </style>
@@ -158,7 +184,7 @@
 
 <!-- 비디오 스트리밍 영역 -->
 <div id="video-container" style="display: none;">
-    <h2>비디오 재생</h2>
+    <h2 id="video-title">비디오 재생</h2> <!-- 동적으로 변경되는 비디오 제목 -->
     <video id="video-player" controls>
         <source id="video-source" src="" type="video/mp4">
         Your browser does not support the video tag.
@@ -178,10 +204,13 @@
 
 <script>
     // 비디오 파일 스트리밍
-    function openVideo(videoUrl) {
+    function openVideo(videoUrl, videoTitle) {
         document.getElementById('video-source').src = videoUrl;
         document.getElementById('video-player').load();
         document.getElementById('video-container').style.display = 'block';
+        
+        // 비디오 제목 업데이트
+        document.getElementById('video-title').textContent = videoTitle;
         
         // 다운로드 링크 업데이트
         document.getElementById('download-link').href = videoUrl;
@@ -196,15 +225,15 @@
 
     // 카드 클릭 시 비디오 또는 PDF 버튼 표시
     document.getElementById('video-card1').addEventListener('click', function() {
-        openVideo('https://github.com/rudals0372/k/raw/main/밀착동영상.mp4');
+        openVideo('https://github.com/rudals0372/k/raw/main/밀착동영상.mp4', '밀착검지기 동영상'); // 제목과 URL 전달
     });
 
     document.getElementById('video-card2').addEventListener('click', function() {
-        openVideo('https://github.com/rudals0372/k/raw/main/다른동영상1.mp4');  // 다른 비디오 URL
+        openVideo('https://github.com/rudals0372/k/raw/main/다른동영상1.mp4', '동영상 2'); // 제목과 URL 전달
     });
 
     document.getElementById('video-card3').addEventListener('click', function() {
-        openVideo('https://github.com/rudals0372/k/raw/main/다른동영상2.mp4');  // 다른 비디오 URL
+        openVideo('https://github.com/rudals0372/k/raw/main/다른동영상2.mp4', '동영상 3'); // 제목과 URL 전달
     });
 
     document.getElementById('pdf-card').addEventListener('click', function() {
