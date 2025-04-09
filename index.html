@@ -88,28 +88,14 @@
             background-color: #555;
         }
 
-        video {
-            width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
-            display: block;
-            border-radius: 10px;
-        }
-
-        .download-btn {
+        /* PDF 버튼 스타일 */
+        #pdf-buttons {
+            display: grid !important;  /* 그리드 강제 적용 */
+            grid-template-columns: repeat(2, 1fr); /* 두 개씩 정렬 */
+            gap: 20px;  /* 버튼들 간의 간격 설정 */
             margin-top: 20px;
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-            display: inline-block;
-            transition: background-color 0.3s ease;
-        }
-
-        .download-btn:hover {
-            background-color: #218838;
+            width: 100%;  /* 부모 너비에 맞게 버튼 너비 설정 */
+            box-sizing: border-box;  /* 전체 너비 계산 시 패딩 포함 */
         }
 
         /* 반응형 디자인 */
@@ -126,6 +112,10 @@
             .container {
                 grid-template-columns: repeat(2, 1fr); /* 한 줄에 두 개 */
             }
+
+            #pdf-buttons {
+                grid-template-columns: repeat(2, 1fr); /* 모바일에서 2개씩 배치 */
+            }
         }
 
         @media (max-width: 480px) {
@@ -139,18 +129,12 @@
             }
 
             .container {
-                grid-template-columns: repeat(2, 1fr); /* 모바일에서도 두 개씩 */
+                grid-template-columns: repeat(2, 1fr); /* 모바일에서도 두 개씩 배치 */
             }
 
-        }
-
-        /* PDF 버튼 스타일 */
-        #pdf-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 두 개씩 정렬 */
-            gap: 10px;
-            margin-top: 20px;
-            width 100%;
+            #pdf-buttons {
+                grid-template-columns: repeat(2, 1fr); /* 모바일에서도 2개씩 배열 */
+            }
         }
 
     </style>
