@@ -23,7 +23,7 @@
 
         .container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);  /* 한 줄에 두 개 */
+            grid-template-columns: repeat(3, 1fr);  /* 한 줄에 세 개 */
             gap: 20px;
             padding: 20px;
             max-width: 1000px;
@@ -124,7 +124,7 @@
             }
 
             .container {
-                grid-template-columns: repeat(2, 1fr); /* 한 줄에 두 개 */
+                grid-template-columns: repeat(2, 1fr); /* 모바일에서 2개씩 표시 */
             }
         }
 
@@ -146,7 +146,7 @@
         /* PDF 버튼 스타일 */
         #pdf-buttons {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 두 개씩 정렬 */
+            grid-template-columns: repeat(3, 1fr); /* 두 개씩 정렬, 모바일에서 2x3 배열 */
             gap: 10px;
             margin-top: 20px;
             padding: 0 20px; /* 여백을 추가해 버튼 간격을 조정 */
