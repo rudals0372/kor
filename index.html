@@ -83,7 +83,6 @@
             width: 100%;
         }
 
-        }
 
         video {
             width: 100%;
@@ -145,25 +144,13 @@
         #pdf-buttons {
             display: grid;
             grid-template-columns: repeat(2, 1fr); /* 두 개씩 정렬 */
-            gap: 15px;
-            margin-top: 10px;
-            width: 100%;
-            box-sizing: border-box;
+            gap: 10px;
+            margin-top: 20px;
         }
-        
-        #video-container {
-    display: none;
+h2{
     text-align: center;
-    padding: 20px;
-    max-width: 100%;
-    margin: 0 auto;
-}
-h2 {
-    text-ailgn: center;
-    display: block;  /* 제목을 블록 요소로 설정하여 버튼들과 수평으로 나란히 나오지 않도록 함 */
-    margin-bottom: 20px; /* 제목과 버튼 간의 여백 */
-    font-size: 20px;
-    grid-column: span 2;
+    text-size: 20px;
+    
 }
     </style>
 </head>
@@ -208,11 +195,11 @@ h2 {
 <!-- PDF 파일 미리보기 버튼 (PDF 관련 코드 그대로 유지) -->
 <div id="pdf-buttons" style="display: none;">
     <h2>매뉴얼</h2>
-    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/검사기준.pdf')">검사기준 PDF</button>
-    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/노스가동매뉴얼.pdf')">노스가동매뉴얼 PDF</button>
-    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/설치방법.pdf')">설치방법 PDF</button>
-    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/유지보수매뉴얼.pdf')">유지보수매뉴얼 PDF</button>
-    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/유지보수방법.pdf')">유지보수방법 PDF</button>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/검사기준.pdf')">검사기준</button>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/노스가동매뉴얼.pdf')">노스가동매뉴얼</button>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/설치방법.pdf')">설치방법</button>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/유지보수매뉴얼.pdf')">유지보수매뉴얼</button>
+    <button onclick="openPDF('https://raw.githubusercontent.com/rudals0372/k/main/docs/유지보수방법.pdf')">유지보수방법</button>
 </div>
 
 <script>
@@ -248,16 +235,11 @@ h2 {
     document.getElementById('video-card3').addEventListener('click', function() {
         openVideo('https://github.com/rudals0372/k/raw/main/다른동영상2.mp4', '동영상 3'); // 제목과 URL 전달
     });
-document.getElementById('pdf-card').addEventListener('click', function() {
-    // PDF 버튼을 보이게 함
-    document.getElementById('pdf-buttons').style.display = 'grid'; // 'block'이 아니라 'grid'로 설정
-    // 비디오 컨테이너를 숨김
-    document.getElementById('video-container').style.display = 'none';
 
-    // 그리드 스타일을 다시 적용
-
-});
-    
+    document.getElementById('pdf-card').addEventListener('click', function() {
+        document.getElementById('pdf-buttons').style.display = 'block';
+        document.getElementById('video-container').style.display = 'none';
+    });
 </script>
 
 </body>
