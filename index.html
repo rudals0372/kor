@@ -71,7 +71,16 @@
             color: #333;
         }
 
-        button {
+        /* PDF 버튼 스타일 */
+        #pdf-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2개의 버튼을 한 줄에 배열 */
+            gap: 10px;
+            margin-top: 20px;
+            padding: 0 20px; /* 여백을 추가해 버튼 간격을 조정 */
+        }
+
+        #pdf-buttons button {
             padding: 12px 25px;
             font-size: 16px;
             cursor: pointer;
@@ -80,59 +89,51 @@
             border: none;
             border-radius: 5px;
             transition: background-color 0.3s ease;
-            margin: 10px 0;
-            box-sizing: border-box; /* 패딩과 테두리를 포함하여 크기를 계산 */
-            width: 100%; /* 너비는 100%로 설정하여 부모 요소의 너비에 맞게 설정 */
-            height: 60px; /* 버튼 높이를 일정하게 설정 */
+            width: 130px;  /* 버튼 너비 고정 */
+            height: 50px;  /* 버튼 높이 고정 */
+            box-sizing: border-box; /* 패딩과 테두리를 포함하여 크기 계산 */
         }
 
-        button:hover {
+        #pdf-buttons button:hover {
             background-color: #555;
         }
 
-        video {
-            width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
-            display: block;
-            border-radius: 10px;
-        }
-
-        .download-btn {
-            margin-top: 20px;
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-            display: inline-block;
-            transition: background-color 0.3s ease;
-        }
-
-        .download-btn:hover {
-            background-color: #218838;
-        }
-
-        /* PDF 버튼 그리드 스타일 */
-        #pdf-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 한 줄에 3개씩 버튼 배열 */
-            gap: 10px;
-            margin-top: 20px;
-            padding: 0 20px; /* 여백을 추가해 버튼 간격을 조정 */
-        }
-
-        /* 버튼을 2x3 형태로 표시 (모바일에서도 동일하게) */
+        /* 반응형 디자인 */
         @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .card {
+                padding: 15px;
+                font-size: 14px;
+            }
+
+            .container {
+                grid-template-columns: repeat(2, 1fr); /* 모바일에서 2개씩 표시 */
+            }
+
             #pdf-buttons {
                 grid-template-columns: repeat(2, 1fr); /* 모바일에서 2개씩 배열 */
             }
         }
 
         @media (max-width: 480px) {
-            #pdf-buttons {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .card {
+                padding: 15px;
+                font-size: 13px;
+            }
+
+            .container {
                 grid-template-columns: repeat(2, 1fr); /* 모바일에서도 두 개씩 */
+            }
+
+            #pdf-buttons {
+                grid-template-columns: repeat(2, 1fr); /* 모바일에서 2개씩 배열 */
             }
         }
 
