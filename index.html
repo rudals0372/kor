@@ -2,77 +2,26 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>GitHub 엑셀 자동 미리보기</title>
+  <title>엑셀 미리보기</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    .sheet-buttons button { margin: 5px; padding: 5px 10px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; }
-  </style>
 </head>
 <body>
+  <h2>엑셀 파일 미리보기</h2>
+  <div id="excel-preview"></div>
 
-<h2>GitHub에서 엑셀 파일 자동 불러오기</h2>
-<div class="sheet-buttons" id="sheetButtons"></div>
-<input type="text" id="searchBox" placeholder="시트 내 검색..." oninput="filterTable()" />
-<div id="excelData"></div>
+  <script>
+    const excelUrl = 'https://raw.githubusercontent.com/your-username/your-repository/main/엑셀함수예제정리.xlsx'; // GitHub의 raw 엑셀 파일 URL
 
-<script>
-let workbookGlobal = null;
-let currentSheetName = '';
-
-fetch('https://raw.githubusercontent.com/rudals0372/ko/main/엑셀함수예제정리.xlsx')
-  .then(res => res.arrayBuffer())
-  .then(data => {
-    const workbook = XLSX.read(data, { type: 'array' });
-    workbookGlobal = workbook;
-
-    const buttonContainer = document.getElementById('sheetButtons');
-    buttonContainer.innerHTML = '';
-
-    workbook.SheetNames.forEach((sheetName, index) => {
-      const btn = document.createElement('button');
-      btn.textContent = sheetName;
-      btn.addEventListener('click', () => {
-        showSheet(sheetName);
-        setActiveButton(index);
-      });
-      buttonContainer.appendChild(btn);
-    });
-
-    if (workbook.SheetNames.length > 0) {
-      showSheet(workbook.SheetNames[0]);
-      setActiveButton(0);
-    }
-  });
-
-function showSheet(sheetName) {
-  const worksheet = workbookGlobal.Sheets[sheetName];
-  const html = XLSX.utils.sheet_to_html(worksheet);
-  document.getElementById('excelData').innerHTML = html;
-  currentSheetName = sheetName;
-  document.getElementById('searchBox').value = '';
-}
-
-function setActiveButton(activeIndex) {
-  const buttons = document.querySelectorAll('#sheetButtons button');
-  buttons.forEach((btn, i) => {
-    btn.classList.toggle('active', i === activeIndex);
-  });
-}
-
-function filterTable() {
-  const input = document.getElementById('searchBox').value.toLowerCase();
-  const rows = document.querySelectorAll('#excelData table tr');
-
-  rows.forEach((row, index) => {
-    if (index === 0) return;
-    const text = row.textContent.toLowerCase();
-    row.style.display = text.includes(input) ? '' : 'none';
-  });
-}
-</script>
-
+    fetch(excelUrl)
+      .then(response => response.arrayBuffer())
+      .then(data => {
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0]; // 첫 번째 시트
+        const sheet = workbook.Sheets[sheetName];
+        const html = XLSX.utils.sheet_to_html(sheet);
+        document.getElementById('excel-preview').innerHTML = html;
+      })
+      .catch(error => console.error('엑셀 파일을 불러오는 중 오류 발생:', error));
+  </script>
 </body>
 </html>
