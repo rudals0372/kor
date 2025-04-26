@@ -2,58 +2,35 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>엑셀 시트 미리보기 + 검색</title>
+  <title>GitHub 엑셀 자동 미리보기</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body { font-family: Arial; padding: 20px; }
-    .sheet-buttons { margin-top: 20px; }
-    .sheet-buttons button {
-      margin-right: 5px;
-      padding: 5px 10px;
-      border: 1px solid #ccc;
-      background-color: #f0f0f0;
-      cursor: pointer;
-    }
-    .sheet-buttons button.active {
-      background-color: #4285f4;
-      color: white;
-    }
-    #searchBox {
-      margin-top: 20px;
-      padding: 8px;
-      width: 300px;
-    }
+    .sheet-buttons button { margin: 5px; padding: 5px 10px; }
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
   </style>
 </head>
 <body>
 
-<h2>엑셀 파일 미리보기 (여러 시트 + 검색)</h2>
-<input type="file" id="upload" accept=".xlsx, .xls" />
+<h2>GitHub에서 엑셀 파일 자동 불러오기</h2>
 <div class="sheet-buttons" id="sheetButtons"></div>
-
 <input type="text" id="searchBox" placeholder="시트 내 검색..." oninput="filterTable()" />
-
 <div id="excelData"></div>
 
 <script>
 let workbookGlobal = null;
 let currentSheetName = '';
 
-document.getElementById('upload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-    const data = new Uint8Array(e.target.result);
+fetch('https://raw.githubusercontent.com/rudals0372/ko/main/엑셀함수예제정리.xlsx')
+  .then(res => res.arrayBuffer())
+  .then(data => {
     const workbook = XLSX.read(data, { type: 'array' });
     workbookGlobal = workbook;
 
     const buttonContainer = document.getElementById('sheetButtons');
     buttonContainer.innerHTML = '';
 
-    // 시트 버튼 생성
     workbook.SheetNames.forEach((sheetName, index) => {
       const btn = document.createElement('button');
       btn.textContent = sheetName;
@@ -64,22 +41,18 @@ document.getElementById('upload').addEventListener('change', function(e) {
       buttonContainer.appendChild(btn);
     });
 
-    // 첫 시트 보여주기
     if (workbook.SheetNames.length > 0) {
       showSheet(workbook.SheetNames[0]);
       setActiveButton(0);
     }
-  };
-
-  reader.readAsArrayBuffer(file);
-});
+  });
 
 function showSheet(sheetName) {
   const worksheet = workbookGlobal.Sheets[sheetName];
   const html = XLSX.utils.sheet_to_html(worksheet);
   document.getElementById('excelData').innerHTML = html;
   currentSheetName = sheetName;
-  document.getElementById('searchBox').value = '';  // 검색 초기화
+  document.getElementById('searchBox').value = '';
 }
 
 function setActiveButton(activeIndex) {
@@ -89,13 +62,12 @@ function setActiveButton(activeIndex) {
   });
 }
 
-// 검색 필터링
 function filterTable() {
   const input = document.getElementById('searchBox').value.toLowerCase();
   const rows = document.querySelectorAll('#excelData table tr');
 
   rows.forEach((row, index) => {
-    if (index === 0) return; // 헤더는 항상 표시
+    if (index === 0) return;
     const text = row.textContent.toLowerCase();
     row.style.display = text.includes(input) ? '' : 'none';
   });
