@@ -21,11 +21,10 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-storage.js"></script>
 
     <script>
       // Firebase 설정
-   const firebaseConfig = {
+ const firebaseConfig = {
   apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
   authDomain: "korail-dac64.firebaseapp.com",
   databaseURL: "https://korail-dac64-default-rtdb.firebaseio.com",
@@ -39,7 +38,6 @@
       // Firebase 초기화
       const app = firebase.initializeApp(firebaseConfig);
       const database = firebase.database();
-      const storage = firebase.storage();
 
       // 파일 업로드 처리
       function uploadFile() {
@@ -47,35 +45,20 @@
         const file = fileInput.files[0];  // 선택한 파일을 가져옵니다
 
         if (file) {
-          console.log('선택된 파일:', file);  // 파일이 제대로 선택되었는지 확인
+          console.log('선택된 파일:', file);
 
-          const storageRef = storage.ref('pdfs/' + file.name);  // Firebase Storage 경로
-          const uploadTask = storageRef.put(file);  // 파일 업로드
+          // 로컬 파일을 URL로 변환 (로컬 파일의 경로를 Realtime Database에 저장)
+          const fileURL = URL.createObjectURL(file);
 
-          uploadTask.on('state_changed', 
-            (snapshot) => {
-              // 업로드 진행 상태 표시 (업로드 진행률 확인)
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              console.log('업로드 진행률:', progress + '%');
-            }, 
-            (error) => {
-              console.error('파일 업로드 오류:', error);  // 오류 로그 출력
-            }, 
-            () => {
-              // 업로드 완료 후 URL을 가져옴
-              uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                // Firebase Realtime Database에 파일 URL 저장
-                database.ref('pdfFiles').push({
-                  fileName: file.name,
-                  fileURL: downloadURL,
-                  uploadedAt: Date.now()
-                }).then(() => {
-                  alert('파일 업로드 완료');
-                  displayPDFList();  // 파일 목록 새로고침
-                });
-              });
-            }
-          );
+          // Firebase Realtime Database에 파일 URL 저장
+          database.ref('pdfFiles').push({
+            fileName: file.name,
+            fileURL: fileURL,
+            uploadedAt: Date.now()
+          }).then(() => {
+            alert('파일 업로드 완료');
+            displayPDFList();  // 파일 목록 새로고침
+          });
         } else {
           alert('파일을 선택해주세요.');
         }
