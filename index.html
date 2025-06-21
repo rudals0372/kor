@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF 업로드 및 미리보기</title>
+    <title>PDF 파일 업로드 및 미리보기</title>
 </head>
 <body>
-    <h1>PDF 업로드 및 미리보기</h1>
+    <h1>PDF 파일 업로드 및 미리보기</h1>
 
-    <!-- PDF 파일 업로드 -->
+    <!-- 파일 업로드 폼 -->
     <input type="file" id="fileInput" accept="application/pdf">
     <button onclick="uploadFile()">파일 업로드</button>
 
@@ -20,12 +20,11 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-storage.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
 
     <script>
       // Firebase 설정
-      const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
   authDomain: "korail-dac64.firebaseapp.com",
   databaseURL: "https://korail-dac64-default-rtdb.firebaseio.com",
@@ -37,48 +36,36 @@
 
       // Firebase 초기화
       const app = firebase.initializeApp(firebaseConfig);
-      const storage = firebase.storage();
       const database = firebase.database();
 
-      // 파일 업로드 기능
+      // 파일 업로드 처리
       function uploadFile() {
         const fileInput = document.getElementById("fileInput");
         const file = fileInput.files[0];
 
         if (file) {
-          const storageRef = storage.ref('pdfs/' + file.name);
-          const uploadTask = storageRef.put(file);
+          // 파일을 외부 서버나 로컬 서버에 업로드 후 URL을 받음
+          // (예: 서버에 업로드된 파일의 URL을 여기에서 처리)
+          const fileURL = "https://example.com/path/to/" + file.name;  // 이 URL은 서버에서 반환된 파일 URL이어야 함.
 
-          uploadTask.on('state_changed', 
-            (snapshot) => {
-              // 업로드 진행 상태 (옵션)
-            }, 
-            (error) => {
-              console.error('파일 업로드 중 오류 발생:', error);
-            }, 
-            () => {
-              uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                // 업로드된 파일 URL을 Realtime Database에 저장
-                database.ref('pdfFiles').push({
-                  fileName: file.name,
-                  fileURL: downloadURL,
-                  uploadedAt: Date.now()
-                }).then(() => {
-                  alert('파일 업로드 완료');
-                  displayPDFList(); // 파일 목록 새로고침
-                });
-              });
-            }
-          );
+          // Firebase Realtime Database에 메타데이터 저장 (파일 URL, 파일명 등)
+          database.ref('pdfFiles').push({
+            fileName: file.name,
+            fileURL: fileURL,
+            uploadedAt: Date.now()
+          }).then(() => {
+            alert('파일 업로드 완료');
+            displayPDFList();  // 파일 목록 새로고침
+          });
         } else {
           alert('파일을 선택해주세요.');
         }
       }
 
-      // PDF 미리보기
+      // PDF 미리보기 (PDF.js 라이브러리 활용)
       function viewPDF(pdfURL) {
         const container = document.getElementById("pdfViewer");
-        container.innerHTML = ''; // 기존 PDF 제거
+        container.innerHTML = '';  // 기존 PDF 제거
         pdfjsLib.getDocument(pdfURL).promise.then((pdf) => {
           pdf.getPage(1).then((page) => {
             const scale = 1.5;
@@ -97,34 +84,17 @@
         });
       }
 
-      // PDF 목록 표시
+      // PDF 파일 목록 표시
       function displayPDFList() {
         const pdfListDiv = document.getElementById("pdfList");
-        pdfListDiv.innerHTML = ''; // 기존 목록 제거
+        pdfListDiv.innerHTML = '';  // 기존 목록 제거
 
+        // Firebase에서 파일 목록을 가져와서 표시
         database.ref('pdfFiles').orderByChild('uploadedAt').limitToLast(10).on('child_added', (snapshot) => {
           const pdfData = snapshot.val();
           const pdfItem = document.createElement('div');
-          pdfItem.innerHTML = `<a href="#" onclick="viewPDF('${pdfData.fileURL}')">${pdfData.fileName}</a>
-                               <button onclick="deletePDF('${pdfData.fileName}')">삭제</button>`;
+          pdfItem.innerHTML = `<a href="#" onclick="viewPDF('${pdfData.fileURL}')">${pdfData.fileName}</a>`;
           pdfListDiv.appendChild(pdfItem);
-        });
-      }
-
-      // PDF 파일 삭제
-      function deletePDF(fileName) {
-        const fileRef = storage.ref('pdfs/' + fileName);
-        fileRef.delete().then(() => {
-          // 삭제 후 데이터베이스에서 항목 제거
-          database.ref('pdfFiles').orderByChild('fileName').equalTo(fileName).once('value', (snapshot) => {
-            snapshot.forEach((childSnapshot) => {
-              childSnapshot.ref.remove();
-            });
-          });
-          alert('파일 삭제 완료');
-          displayPDFList(); // 목록 새로고침
-        }).catch((error) => {
-          console.error('파일 삭제 중 오류 발생:', error);
         });
       }
 
