@@ -3,44 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>엑셀 파일 미리보기</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            width: 80%;
-            max-width: 1200px;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-        iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-        }
-    </style>
+    <title>PDF 업로드 및 미리보기</title>
 </head>
 <body>
+    <h1>PDF 업로드 및 미리보기</h1>
 
-<div class="container">
-    <h1>엑셀 파일 미리보기</h1>
-      <p>
-    <a href="https://docs.google.com/spreadsheets/d/1VbZvmvdhntZjAqofC00QlMr1HbREdD8a/edit?usp=sharing" target="_blank" style="color: blue; font-weight: bold;">
-      새 탭에서 전체 화면으로 보기
-    </a>
-  </p>
+    <!-- PDF 파일 업로드 -->
+    <input type="file" id="fileInput" accept="application/pdf">
+    <button onclick="uploadFile()">파일 업로드</button>
 
-    <iframe src="https://docs.google.com/spreadsheets/d/1VbZvmvdhntZjAqofC00QlMr1HbREdD8a/preview" width="100%" height="600px"></iframe>
-</div>
+    <h2>최근 업로드된 PDF 파일 목록</h2>
+    <div id="pdfList"></div>
 
+    <h2>PDF 미리보기</h2>
+    <div id="pdfViewer"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
+
+    <script>
+      // Firebase 설정
+      const firebaseConfig = {
+  apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
+  authDomain: "korail-dac64.firebaseapp.com",
+  databaseURL: "https://korail-dac64-default-rtdb.firebaseio.com",
+  projectId: "korail-dac64",
+  storageBucket: "korail-dac64.firebasestorage.app",
+  messagingSenderId: "366259094919",
+  appId: "1:366259094919:web:ab1c74c4f38a799113bf22",
+};
+
+      // Firebase 초기화
+      const app = firebase.initializeApp(firebaseConfig);
+      const storage = firebase.storage();
+      const database = firebase.database();
+
+      // 파일 업로드 기능
+      function uploadFile() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+
+        if (file) {
+          const storageRef = storage.ref('pdfs/' + file.name);
+          const uploadTask = storageRef.put(file);
+
+          uploadTask.on('state_changed', 
+            (snapshot) => {
+              // 업로드 진행 상태 (옵션)
+            }, 
+            (error) => {
+              console.error('파일 업로드 중 오류 발생:', error);
+            }, 
+            () => {
+              uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                // 업로드된 파일 URL을 Realtime Database에 저장
+                database.ref('pdfFiles').push({
+                  fileName: file.name,
+                  fileURL: downloadURL,
+                  uploadedAt: Date.now()
+                }).then(() => {
+                  alert('파일 업로드 완료');
+                  displayPDFList(); // 파일 목록 새로고침
+                });
+              });
+            }
+          );
+        } else {
+          alert('파일을 선택해주세요.');
+        }
+      }
+
+      // PDF 미리보기
+      function viewPDF(pdfURL) {
+        const container = document.getElementById("pdfViewer");
+        container.innerHTML = ''; // 기존 PDF 제거
+        pdfjsLib.getDocument(pdfURL).promise.then((pdf) => {
+          pdf.getPage(1).then((page) => {
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale: scale });
+            const canvas = document.createElement('canvas');
+            container.appendChild(canvas);
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            page.render({
+              canvasContext: context,
+              viewport: viewport
+            });
+          });
+        });
+      }
+
+      // PDF 목록 표시
+      function displayPDFList() {
+        const pdfListDiv = document.getElementById("pdfList");
+        pdfListDiv.innerHTML = ''; // 기존 목록 제거
+
+        database.ref('pdfFiles').orderByChild('uploadedAt').limitToLast(10).on('child_added', (snapshot) => {
+          const pdfData = snapshot.val();
+          const pdfItem = document.createElement('div');
+          pdfItem.innerHTML = `<a href="#" onclick="viewPDF('${pdfData.fileURL}')">${pdfData.fileName}</a>
+                               <button onclick="deletePDF('${pdfData.fileName}')">삭제</button>`;
+          pdfListDiv.appendChild(pdfItem);
+        });
+      }
+
+      // PDF 파일 삭제
+      function deletePDF(fileName) {
+        const fileRef = storage.ref('pdfs/' + fileName);
+        fileRef.delete().then(() => {
+          // 삭제 후 데이터베이스에서 항목 제거
+          database.ref('pdfFiles').orderByChild('fileName').equalTo(fileName).once('value', (snapshot) => {
+            snapshot.forEach((childSnapshot) => {
+              childSnapshot.ref.remove();
+            });
+          });
+          alert('파일 삭제 완료');
+          displayPDFList(); // 목록 새로고침
+        }).catch((error) => {
+          console.error('파일 삭제 중 오류 발생:', error);
+        });
+      }
+
+      // 페이지 로드 시 파일 목록 표시
+      displayPDFList();
+    </script>
+
+    <!-- PDF.js 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </body>
 </html>
