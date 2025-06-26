@@ -10,21 +10,29 @@
   <h1>Firebase Realtime Database 예제</h1>
   <div id="material-list"></div>
 
+  <div>
+    <h3>자재 수정</h3>
+    <label for="material-name">자재 이름:</label>
+    <input type="text" id="material-name">
+    <label for="material-quantity">수량:</label>
+    <input type="number" id="material-quantity">
+    <button id="save-button">수정하기</button>
+  </div>
+
   <script type="module">
-    // 최신 Firebase SDK 9 이상 사용 시
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js';
     import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js';
 
-       // Firebase Config
-  const firebaseConfig = {
-  apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
-  authDomain: "korail-dac64.firebaseapp.com",
-  databaseURL: "https://korail-dac64-default-rtdb.firebaseio.com",
-  projectId: "korail-dac64",
-  storageBucket: "korail-dac64.firebasestorage.app",
-  messagingSenderId: "366259094919",
-  appId: "1:366259094919:web:ab1c74c4f38a799113bf22",
-};
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
+      authDomain: "korail-dac64.firebaseapp.com",
+      databaseURL: "https://korail-dac64-default-rtdb.firebaseio.com",
+      projectId: "korail-dac64",
+      storageBucket: "korail-dac64.firebasestorage.app",
+      messagingSenderId: "366259094919",
+      appId: "1:366259094919:web:ab1c74c4f38a799113bf22",
+    };
 
     // Firebase 앱 초기화
     const app = initializeApp(firebaseConfig);
@@ -45,8 +53,44 @@
         const material = materials[key];
         const div = document.createElement('div');
         div.textContent = `${material.name}: ${material.quantity}`;
+        
+        // 수정 버튼
+        const editButton = document.createElement('button');
+        editButton.textContent = '수정';
+        editButton.onclick = () => loadMaterialForEdit(key, material);
+        
+        div.appendChild(editButton);
         materialListDiv.appendChild(div);
       }
+    }
+
+    // 자재 수정 폼에 데이터 로드
+    function loadMaterialForEdit(key, material) {
+      document.getElementById('material-name').value = material.name;
+      document.getElementById('material-quantity').value = material.quantity;
+
+      // 수정 버튼 클릭 시 데이터베이스에 수정된 데이터 저장
+      const saveButton = document.getElementById('save-button');
+      saveButton.onclick = () => saveMaterialEdits(key);
+    }
+
+    // 수정된 자재 데이터 저장
+    function saveMaterialEdits(key) {
+      const updatedName = document.getElementById('material-name').value;
+      const updatedQuantity = document.getElementById('material-quantity').value;
+
+      const materialToUpdate = {
+        name: updatedName,
+        quantity: updatedQuantity
+      };
+
+      // Firebase에 수정된 데이터 저장
+      const materialRefToUpdate = ref(db, 'materials/' + key);
+      set(materialRefToUpdate, materialToUpdate);
+
+      // 수정 후 폼 초기화
+      document.getElementById('material-name').value = '';
+      document.getElementById('material-quantity').value = '';
     }
   </script>
 
