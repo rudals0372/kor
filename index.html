@@ -25,6 +25,16 @@
       margin-right: 10px;
       width: 60px;
     }
+    .material-item button {
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .material-item button:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
@@ -32,7 +42,7 @@
   <div id="material-items"></div>
 
   <script>
-    // Firebase Config
+      // Firebase Config
   const firebaseConfig = {
   apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
   authDomain: "korail-dac64.firebaseapp.com",
@@ -42,10 +52,9 @@
   messagingSenderId: "366259094919",
   appId: "1:366259094919:web:ab1c74c4f38a799113bf22",
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    // Firebase 초기화
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database(app);
 
     // 자재 데이터를 읽어오는 코드
     const materialRef = database.ref('materials');
