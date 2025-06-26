@@ -4,28 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Firebase Realtime Database 예제</title>
+  <style>
+    #settings-menu {
+      display: none;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
 
   <h1>Firebase Realtime Database 예제</h1>
-  
-  <div id="material-list"></div>
 
-  <h3>자재 추가</h3>
-  <label for="new-material-name">자재 이름:</label>
-  <input type="text" id="new-material-name">
-  <label for="new-material-quantity">수량:</label>
-  <input type="number" id="new-material-quantity">
-  <button id="add-material-button">자재 추가</button>
+  <!-- 설정 버튼 -->
+  <button id="settings-button">설정</button>
 
-  <div>
-    <h3>자재 수정</h3>
+  <!-- 설정 메뉴 -->
+  <div id="settings-menu">
+    <h3>자재 관리</h3>
+    <button id="add-material-btn">자재 추가</button>
+    <button id="edit-material-btn">자재 수정</button>
+    <button id="delete-material-btn">자재 삭제</button>
+  </div>
+
+  <!-- 자재 추가/수정 폼 -->
+  <div id="material-form">
+    <h3>자재 추가/수정</h3>
     <label for="material-name">자재 이름:</label>
     <input type="text" id="material-name">
     <label for="material-quantity">수량:</label>
     <input type="number" id="material-quantity">
-    <button id="save-button">수정하기</button>
+    <button id="save-material-button">저장</button>
   </div>
+
+  <div id="material-list"></div>
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js';
@@ -90,7 +103,7 @@
       document.getElementById('material-quantity').value = material.quantity;
 
       // 수정하기 버튼 클릭 시 데이터베이스에 수정된 데이터 저장
-      const saveButton = document.getElementById('save-button');
+      const saveButton = document.getElementById('save-material-button');
       saveButton.onclick = () => {
         if (window.confirm("수정하시겠습니까?")) {
           saveMaterialEdits(key);
@@ -118,9 +131,9 @@
     }
 
     // 자재 추가
-    document.getElementById('add-material-button').onclick = function() {
-      const name = document.getElementById('new-material-name').value;
-      const quantity = document.getElementById('new-material-quantity').value;
+    document.getElementById('add-material-btn').onclick = function() {
+      const name = document.getElementById('material-name').value;
+      const quantity = document.getElementById('material-quantity').value;
 
       if (name && quantity) {
         const newMaterialRef = push(materialRef);
@@ -130,8 +143,8 @@
         });
 
         // 자재 추가 후 입력창 초기화
-        document.getElementById('new-material-name').value = '';
-        document.getElementById('new-material-quantity').value = '';
+        document.getElementById('material-name').value = '';
+        document.getElementById('material-quantity').value = '';
       }
     };
 
@@ -140,6 +153,12 @@
       const materialToDeleteRef = ref(db, 'materials/' + key);
       remove(materialToDeleteRef);
     }
+
+    // 설정 버튼 클릭 시 메뉴 보이기
+    document.getElementById('settings-button').onclick = function() {
+      const settingsMenu = document.getElementById('settings-menu');
+      settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'block' : 'none';
+    };
   </script>
 
 </body>
