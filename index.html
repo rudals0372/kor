@@ -101,6 +101,11 @@
         alert('수량을 입력해주세요.');
       }
     }
+    materialRef.on('value', (snapshot) => {
+  const materials = snapshot.val();
+  console.log("Materials from Firebase:", materials); // 이 줄로 데이터를 확인
+  renderMaterials(materials); // 자재 목록 렌더링
+});
   </script>
 </body>
 </html>
