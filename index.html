@@ -8,7 +8,15 @@
 <body>
 
   <h1>Firebase Realtime Database 예제</h1>
+  
   <div id="material-list"></div>
+
+  <h3>자재 추가</h3>
+  <label for="new-material-name">자재 이름:</label>
+  <input type="text" id="new-material-name">
+  <label for="new-material-quantity">수량:</label>
+  <input type="number" id="new-material-quantity">
+  <button id="add-material-button">자재 추가</button>
 
   <div>
     <h3>자재 수정</h3>
@@ -21,7 +29,7 @@
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js';
-    import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js';
+    import { getDatabase, ref, set, push, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js';
 
     // Firebase Config
     const firebaseConfig = {
@@ -59,7 +67,13 @@
         editButton.textContent = '수정';
         editButton.onclick = () => loadMaterialForEdit(key, material);
         
+        // 삭제 버튼
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = '삭제';
+        deleteButton.onclick = () => deleteMaterial(key);
+        
         div.appendChild(editButton);
+        div.appendChild(deleteButton);
         materialListDiv.appendChild(div);
       }
     }
@@ -91,6 +105,30 @@
       // 수정 후 폼 초기화
       document.getElementById('material-name').value = '';
       document.getElementById('material-quantity').value = '';
+    }
+
+    // 자재 추가
+    document.getElementById('add-material-button').onclick = function() {
+      const name = document.getElementById('new-material-name').value;
+      const quantity = document.getElementById('new-material-quantity').value;
+
+      if (name && quantity) {
+        const newMaterialRef = push(materialRef);
+        set(newMaterialRef, {
+          name: name,
+          quantity: quantity
+        });
+
+        // 자재 추가 후 입력창 초기화
+        document.getElementById('new-material-name').value = '';
+        document.getElementById('new-material-quantity').value = '';
+      }
+    };
+
+    // 자재 삭제
+    function deleteMaterial(key) {
+      const materialToDeleteRef = ref(db, 'materials/' + key);
+      remove(materialToDeleteRef);
     }
   </script>
 
