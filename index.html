@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Realtime Database 예제</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자재현황 수정</title>
+    <script src="https://www.gstatic.com/firebasejs/9.8.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.8.3/firebase-database.js"></script>
 </head>
 <body>
+    <h1>자재현황</h1>
 
-  <h1>Firebase Realtime Database 예제</h1>
-  <div id="material-list"></div>
+    <!-- 자재 목록 -->
+    <div id="material-list">
+        <div id="material-items">
+            <!-- 자재 항목들이 여기에 추가됩니다. -->
+        </div>
+    </div>
 
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js';
-    import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js';
-
-      // Firebase Config
+    <script>
+    // Firebase Config
   const firebaseConfig = {
   apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
   authDomain: "korail-dac64.firebaseapp.com",
@@ -25,29 +29,84 @@
   appId: "1:366259094919:web:ab1c74c4f38a799113bf22",
 };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+        // Firebase 앱 초기화
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
 
-    // 데이터베이스에서 자재 목록 가져오기
-    const materialRef = ref(db, 'materials');
-    onValue(materialRef, (snapshot) => {
-      const data = snapshot.val();
-      renderMaterialList(data);
-    });
+        let materialData = {};  // 자재 데이터를 저장할 객체
+        let currentTeam = null; // 현재 선택된 팀
+        let currentWarehouse = null; // 현재 선택된 창고
 
-    // 자재 목록 렌더링
-    function renderMaterialList(materials) {
-      const materialListDiv = document.getElementById('material-list');
-      materialListDiv.innerHTML = ''; // 기존 자재 목록 초기화
-      for (const key in materials) {
-        const material = materials[key];
-        const div = document.createElement('div');
-        div.textContent = `${material.name}: ${material.quantity}`;
-        materialListDiv.appendChild(div);
-      }
-    }
-  </script>
+        // 자재 데이터를 Firebase에서 로드
+        function loadMaterialData() {
+            const dbRef = database.ref('materials');  // materials 데이터 경로
+            dbRef.once('value', (snapshot) => {
+                materialData = snapshot.val() || {};
+                renderMaterialList();  // 자재 목록 렌더링
+            });
+        }
 
+        // 자재 목록을 HTML에 렌더링
+        function renderMaterialList() {
+            const container = document.getElementById('material-items');
+            container.innerHTML = '';  // 기존 항목 삭제
+
+            // 현재 팀과 창고에 해당하는 자재 항목을 가져옵니다.
+            const materials = materialData[currentTeam] && materialData[currentTeam][currentWarehouse] || [];
+
+            materials.forEach(({ item, quantity }, index) => {
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.justifyContent = 'space-between';
+                row.style.alignItems = 'center';
+                row.style.marginBottom = '8px';
+
+                const label = document.createElement('span');
+                label.textContent = item;
+                label.style.fontWeight = '600';
+                label.style.flex = '1';
+                label.style.textAlign = 'left';
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '0';
+                input.value = quantity;
+                input.setAttribute('data-item', item);
+                input.style.width = '60px';
+                input.style.padding = '4px';
+
+                // 수정된 값이 있을 때 Firebase에 저장
+                input.addEventListener('change', () => {
+                    const newQty = parseInt(input.value);
+                    if (!isNaN(newQty) && newQty >= 0) {
+                        // Firebase에 수정된 값을 반영
+                        const dbRef = database.ref('materials/' + currentTeam + '/' + currentWarehouse + '/' + index);
+                        dbRef.update({ quantity: newQty });
+                    }
+                });
+
+                row.appendChild(label);
+                row.appendChild(input);
+                container.appendChild(row);
+            });
+        }
+
+        // 팀과 창고 선택 후 데이터 로드
+        function selectTeam(team) {
+            currentTeam = team;
+            loadMaterialData();
+        }
+
+        function selectWarehouse(warehouse) {
+            currentWarehouse = warehouse;
+            loadMaterialData();
+        }
+
+        // 페이지가 로드될 때 자재 데이터를 Firebase에서 불러옵니다.
+        window.addEventListener('load', () => {
+            selectTeam('team1');  // 기본적으로 'team1' 선택
+            selectWarehouse('warehouseA');  // 기본적으로 'warehouseA' 선택
+        });
+    </script>
 </body>
 </html>
