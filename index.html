@@ -1,60 +1,41 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>자재현황 실시간 관리</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database.js"></script>
+  <title>자재현황</title>
+  <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
   <style>
     body {
-      font-family: 'Pretendard', sans-serif;
-      background-color: #f0f4f8;
-      margin: 0;
-      padding: 0;
-      color: #2c3e50;
+      font-family: Arial, sans-serif;
     }
-
-    .container {
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 20px;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    #material-list {
+      margin-top: 20px;
     }
-
     .material-item {
       display: flex;
       justify-content: space-between;
       margin-bottom: 10px;
       padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background-color: #fafafa;
+      background: #f4f4f4;
+      border-radius: 5px;
     }
-
-    .material-item span {
-      font-size: 16px;
-    }
-
-    .editable {
-      border: 1px solid #ccc;
-      padding: 5px;
-      border-radius: 4px;
-      min-width: 50px;
+    .material-item button {
+      padding: 5px 10px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>자재현황 실시간 관리</h1>
-    <div id="material-list"></div>
+  <h1>자재현황</h1>
+  <div id="material-list">
+    <!-- 자재 목록이 여기에 표시됩니다 -->
   </div>
 
   <script>
+
      // Firebase 설정
  const firebaseConfig = {
   apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
@@ -64,60 +45,70 @@
   storageBucket: "korail-dac64.firebasestorage.app",
   messagingSenderId: "366259094919",
   appId: "1:366259094919:web:ab1c74c4f38a799113bf22",
-  measurementId: "G-QL8W3JEP0B"
 };
 
-
-    // Initialize Firebase
+    // Firebase 초기화
     const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const database = firebase.database(app);
 
-    // Firebase에서 자재 데이터 가져오기
-    const materialsRef = database.ref('materials');
+    // 자재 데이터를 가져올 경로
+    const materialRef = database.ref("materials");
 
-    materialsRef.on('value', (snapshot) => {
-      const materials = snapshot.val();
-      displayMaterials(materials);
-    });
+    // 자재 목록을 화면에 렌더링하는 함수
+    function renderMaterialList(materials) {
+      const materialListElement = document.getElementById("material-list");
+      materialListElement.innerHTML = "";  // 기존 목록 지우기
 
-    function displayMaterials(materials) {
-      const materialListDiv = document.getElementById('material-list');
-      materialListDiv.innerHTML = ''; // 기존 자재 목록 지우기
+      // Firebase에서 가져온 자재 데이터를 화면에 표시
+      materials.forEach((material) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.classList.add("material-item");
 
-      if (materials) {
-        for (let materialId in materials) {
-          const material = materials[materialId];
-          const div = document.createElement('div');
-          div.classList.add('material-item');
-          div.innerHTML = `
-            <span>${material.name}</span>
-            <span>수량: <span contenteditable="true" data-id="${materialId}" class="editable">${material.quantity}</span></span>
-          `;
-          materialListDiv.appendChild(div);
-        }
+        // 자재 이름과 수량
+        const materialInfo = document.createElement("span");
+        materialInfo.textContent = `${material.name} - 수량: ${material.quantity}`;
 
-        // 수량 변경 시 실시간 업데이트
-        const editableElements = document.querySelectorAll('.editable');
-        editableElements.forEach((element) => {
-          element.addEventListener('blur', (event) => {
-            const newQuantity = parseInt(event.target.innerText);
-            const materialId = event.target.getAttribute('data-id');
-            updateMaterialQuantity(materialId, newQuantity);
+        // 수량 수정 버튼
+        const editButton = document.createElement("button");
+        editButton.textContent = "수정";
+        editButton.onclick = () => updateMaterialQuantity(material.key);
+
+        itemDiv.appendChild(materialInfo);
+        itemDiv.appendChild(editButton);
+
+        materialListElement.appendChild(itemDiv);
+      });
+    }
+
+    // 자재 수량 수정 함수
+    function updateMaterialQuantity(key) {
+      const newQuantity = prompt("새로운 수량을 입력하세요:");
+      if (newQuantity !== null) {
+        const quantity = parseInt(newQuantity);
+        if (!isNaN(quantity)) {
+          const materialRefToUpdate = materialRef.child(key);
+          materialRefToUpdate.update({
+            quantity: quantity
           });
-        });
+        } else {
+          alert("수량은 숫자만 입력할 수 있습니다.");
+        }
       }
     }
 
-    function updateMaterialQuantity(materialId, quantity) {
-      if (isNaN(quantity)) return; // 수량이 숫자가 아니면 업데이트하지 않음
-      const materialRef = materialsRef.child(materialId);
-      materialRef.update({
-        quantity: quantity
-      });
-    }
+    // Firebase에서 자재 목록을 실시간으로 가져오기
+    materialRef.on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const materials = Object.keys(data).map(key => ({
+          key,
+          ...data[key]
+        }));
+        renderMaterialList(materials);
+      }
+    });
   </script>
 
 </body>
 </html>
 
- 
