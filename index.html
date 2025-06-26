@@ -3,49 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>자재 관리</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 0;
-    }
-    #material-list {
-      margin-top: 20px;
-    }
-    .material-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      background-color: #fff;
-      margin: 5px 0;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .material-item button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 5px 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .material-item button:hover {
-      background-color: #45a049;
-    }
-  </style>
+  <title>Firebase Realtime Database 예제</title>
 </head>
 <body>
 
-  <h1 style="text-align:center; padding: 20px;">자재 현황</h1>
-
+  <h1>Firebase Realtime Database 예제</h1>
   <div id="material-list"></div>
 
-  <script>
-    // Firebase Config
+  <script type="module">
+    // 최신 Firebase SDK 9 이상 사용 시
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js';
+    import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js';
+
+       // Firebase Config
   const firebaseConfig = {
   apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
   authDomain: "korail-dac64.firebaseapp.com",
@@ -56,62 +26,29 @@
   appId: "1:366259094919:web:ab1c74c4f38a799113bf22",
 };
 
-    // Firebase 초기화
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database(app);
+    // Firebase 앱 초기화
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    // 자재 데이터 불러오기
-    const materialRef = db.ref('materials');
-    materialRef.on('value', (snapshot) => {
+    // 데이터베이스에서 자재 목록 가져오기
+    const materialRef = ref(db, 'materials');
+    onValue(materialRef, (snapshot) => {
       const data = snapshot.val();
-      console.log('데이터 로드:', data);
       renderMaterialList(data);
     });
 
     // 자재 목록 렌더링
-    function renderMaterialList(data) {
+    function renderMaterialList(materials) {
       const materialListDiv = document.getElementById('material-list');
-      materialListDiv.innerHTML = '';  // 기존 목록 초기화
-
-      // 데이터가 없을 때
-      if (!data) {
-        materialListDiv.innerHTML = '<p>자재가 없습니다.</p>';
-        return;
-      }
-
-      // 데이터가 있을 경우 렌더링
-      for (const key in data) {
-        const material = data[key];
+      materialListDiv.innerHTML = ''; // 기존 자재 목록 초기화
+      for (const key in materials) {
+        const material = materials[key];
         const div = document.createElement('div');
-        div.className = 'material-item';
-        div.innerHTML = `
-          <span>${material.name} - ${material.quantity}</span>
-          <button onclick="editMaterial('${key}')">수정</button>
-        `;
+        div.textContent = `${material.name}: ${material.quantity}`;
         materialListDiv.appendChild(div);
       }
     }
-
-    // 자재 수정 함수
-    function editMaterial(key) {
-      const newQuantity = prompt('수량을 수정하세요:', '');
-
-      if (newQuantity !== null && !isNaN(newQuantity) && newQuantity > 0) {
-        // 수정된 수량 저장
-        const materialRef = db.ref('materials/' + key);
-        materialRef.update({ quantity: newQuantity })
-          .then(() => {
-            alert('수정이 완료되었습니다.');
-          })
-          .catch((error) => {
-            console.error('수정 실패:', error);
-            alert('수정에 실패했습니다.');
-          });
-      } else {
-        alert('유효한 수량을 입력해 주세요.');
-      }
-    }
-
   </script>
+
 </body>
 </html>
