@@ -1,29 +1,61 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF 파일 업로드 및 미리보기</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>자재현황 실시간 관리</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database.js"></script>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .material-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background-color: #fafafa;
+    }
+
+    .material-item span {
+      font-size: 16px;
+    }
+
+    .editable {
+      border: 1px solid #ccc;
+      padding: 5px;
+      border-radius: 4px;
+      min-width: 50px;
+    }
+  </style>
 </head>
 <body>
-    <h1>PDF 파일 업로드 및 미리보기</h1>
 
-    <!-- 파일 업로드 폼 -->
-    <input type="file" id="fileInput" accept="application/pdf">
-    <button onclick="uploadFile()">파일 업로드</button>
+  <div class="container">
+    <h1>자재현황 실시간 관리</h1>
+    <div id="material-list"></div>
+  </div>
 
-    <h2>최근 업로드된 PDF 파일 목록</h2>
-    <div id="pdfList"></div>
-
-    <h2>PDF 미리보기</h2>
-    <div id="pdfViewer"></div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
-
-    <script>
-      // Firebase 설정
+  <script>
+     // Firebase 설정
  const firebaseConfig = {
   apiKey: "AIzaSyBFnvY4Adn35uSb0RztjBKkPkRnhuOCYn4",
   authDomain: "korail-dac64.firebaseapp.com",
@@ -35,76 +67,57 @@
   measurementId: "G-QL8W3JEP0B"
 };
 
-      // Firebase 초기화
-      const app = firebase.initializeApp(firebaseConfig);
-      const database = firebase.database();
 
-      // 파일 업로드 처리
-      function uploadFile() {
-        const fileInput = document.getElementById("fileInput");
-        const file = fileInput.files[0];  // 선택한 파일을 가져옵니다
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-        if (file) {
-          console.log('선택된 파일:', file);
+    // Firebase에서 자재 데이터 가져오기
+    const materialsRef = database.ref('materials');
 
-          // 로컬 파일을 URL로 변환 (로컬 파일의 경로를 Realtime Database에 저장)
-          const fileURL = URL.createObjectURL(file);
+    materialsRef.on('value', (snapshot) => {
+      const materials = snapshot.val();
+      displayMaterials(materials);
+    });
 
-          // Firebase Realtime Database에 파일 URL 저장
-          database.ref('pdfFiles').push({
-            fileName: file.name,
-            fileURL: fileURL,
-            uploadedAt: Date.now()
-          }).then(() => {
-            alert('파일 업로드 완료');
-            displayPDFList();  // 파일 목록 새로고침
-          });
-        } else {
-          alert('파일을 선택해주세요.');
+    function displayMaterials(materials) {
+      const materialListDiv = document.getElementById('material-list');
+      materialListDiv.innerHTML = ''; // 기존 자재 목록 지우기
+
+      if (materials) {
+        for (let materialId in materials) {
+          const material = materials[materialId];
+          const div = document.createElement('div');
+          div.classList.add('material-item');
+          div.innerHTML = `
+            <span>${material.name}</span>
+            <span>수량: <span contenteditable="true" data-id="${materialId}" class="editable">${material.quantity}</span></span>
+          `;
+          materialListDiv.appendChild(div);
         }
-      }
 
-      // PDF 미리보기 (PDF.js 라이브러리 활용)
-      function viewPDF(pdfURL) {
-        const container = document.getElementById("pdfViewer");
-        container.innerHTML = '';  // 기존 PDF 제거
-        pdfjsLib.getDocument(pdfURL).promise.then((pdf) => {
-          pdf.getPage(1).then((page) => {
-            const scale = 1.5;
-            const viewport = page.getViewport({ scale: scale });
-            const canvas = document.createElement('canvas');
-            container.appendChild(canvas);
-            const context = canvas.getContext('2d');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            page.render({
-              canvasContext: context,
-              viewport: viewport
-            });
+        // 수량 변경 시 실시간 업데이트
+        const editableElements = document.querySelectorAll('.editable');
+        editableElements.forEach((element) => {
+          element.addEventListener('blur', (event) => {
+            const newQuantity = parseInt(event.target.innerText);
+            const materialId = event.target.getAttribute('data-id');
+            updateMaterialQuantity(materialId, newQuantity);
           });
         });
       }
+    }
 
-      // PDF 파일 목록 표시
-      function displayPDFList() {
-        const pdfListDiv = document.getElementById("pdfList");
-        pdfListDiv.innerHTML = '';  // 기존 목록 제거
+    function updateMaterialQuantity(materialId, quantity) {
+      if (isNaN(quantity)) return; // 수량이 숫자가 아니면 업데이트하지 않음
+      const materialRef = materialsRef.child(materialId);
+      materialRef.update({
+        quantity: quantity
+      });
+    }
+  </script>
 
-        // Firebase에서 파일 목록을 가져와서 표시
-        database.ref('pdfFiles').orderByChild('uploadedAt').limitToLast(10).on('child_added', (snapshot) => {
-          const pdfData = snapshot.val();
-          const pdfItem = document.createElement('div');
-          pdfItem.innerHTML = `<a href="#" onclick="viewPDF('${pdfData.fileURL}')">${pdfData.fileName}</a>`;
-          pdfListDiv.appendChild(pdfItem);
-        });
-      }
-
-      // 페이지 로드 시 파일 목록 표시
-      displayPDFList();
-    </script>
-
-    <!-- PDF.js 라이브러리 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </body>
 </html>
+
+ 
