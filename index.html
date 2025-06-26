@@ -65,12 +65,20 @@
         // 수정 버튼
         const editButton = document.createElement('button');
         editButton.textContent = '수정';
-        editButton.onclick = () => loadMaterialForEdit(key, material);
+        editButton.onclick = () => {
+          if (window.confirm("수정하시겠습니까?")) {
+            loadMaterialForEdit(key, material);
+          }
+        };
         
         // 삭제 버튼
         const deleteButton = document.createElement('button');
         deleteButton.textContent = '삭제';
-        deleteButton.onclick = () => deleteMaterial(key);
+        deleteButton.onclick = () => {
+          if (window.confirm("삭제하시겠습니까?")) {
+            deleteMaterial(key);
+          }
+        };
         
         div.appendChild(editButton);
         div.appendChild(deleteButton);
