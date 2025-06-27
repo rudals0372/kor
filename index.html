@@ -3,44 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Realtime Database 예제</title>
+  <title>자재 관리 시스템</title>
   <style>
-    #settings-menu {
-      display: none;
-      margin-top: 10px;
+    .hidden { display: none; }
+    .card {
+      padding: 20px;
+      margin: 10px;
       border: 1px solid #ccc;
-      padding: 10px;
+      cursor: pointer;
     }
+    .button { padding: 10px 20px; }
+    #material-form, #warehouse-cards, #team-cards { display: none; }
   </style>
 </head>
 <body>
 
-  <h1>Firebase Realtime Database 예제</h1>
+  <h1>자재 관리 시스템</h1>
 
-  <!-- 설정 버튼 -->
-  <button id="settings-button">설정</button>
+  <!-- 자재 현황 카드 -->
+  <div id="material-status-card" class="card">자재 현황 보기</div>
 
-  <!-- 설정 메뉴 -->
-  <div id="settings-menu">
-    <h3>자재 관리</h3>
-    <button id="add-material-btn">자재 추가</button>
-    <button id="edit-material-btn">자재 수정</button>
-    <button id="delete-material-btn">자재 삭제</button>
+  <!-- 팀 선택 카드들 -->
+  <div id="team-cards">
+    <div class="card" id="team-1">팀 1</div>
+    <div class="card" id="team-2">팀 2</div>
+    <div class="card" id="team-3">팀 3</div>
   </div>
 
-  <!-- 자재 추가/수정 폼 -->
-  <div id="material-form">
-    <h3>자재 추가/수정</h3>
+  <!-- 창고 선택 카드들 -->
+  <div id="warehouse-cards" class="hidden">
+    <div class="card" id="warehouse-1">창고 1</div>
+    <div class="card" id="warehouse-2">창고 2</div>
+    <div class="card" id="warehouse-3">창고 3</div>
+    <div class="card" id="warehouse-4">창고 4</div>
+  </div>
+
+  <!-- 자재 수정/추가 폼 -->
+  <div id="material-form" class="hidden">
+    <h3>자재 수정/추가</h3>
     <label for="material-name">자재 이름:</label>
-    <input type="text" id="material-name">
+    <input type="text" id="material-name" />
     <label for="material-quantity">수량:</label>
-    <input type="number" id="material-quantity">
-    <button id="save-material-button">저장</button>
+    <input type="number" id="material-quantity" />
+    <button id="save-material" class="button">저장</button>
+    <button id="delete-material" class="button">삭제</button>
   </div>
 
-  <div id="material-list"></div>
-
-  <!-- Firebase SDK 8 버전 추가 -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
@@ -60,106 +69,71 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // 데이터베이스에서 자재 목록 가져오기
-    const materialRef = db.ref('materials');
-    materialRef.on('value', function(snapshot) {
-      const data = snapshot.val();
-      renderMaterialList(data);
-    });
+    let selectedTeam = null;
+    let selectedWarehouse = null;
 
-    // 자재 목록 렌더링
-    function renderMaterialList(materials) {
-      const materialListDiv = document.getElementById('material-list');
-      materialListDiv.innerHTML = ''; // 기존 자재 목록 초기화
+    // 자재 현황 카드 클릭 시 팀 선택 카드 보이기
+    document.getElementById('material-status-card').onclick = function() {
+      document.getElementById('team-cards').style.display = 'block';
+    };
 
-      for (const key in materials) {
-        const material = materials[key];
-        const div = document.createElement('div');
-        div.textContent = `${material.name}: ${material.quantity}`;
+    // 팀 선택 시 창고 카드 보이기
+    document.getElementById('team-1').onclick = function() { selectTeam(1); };
+    document.getElementById('team-2').onclick = function() { selectTeam(2); };
+    document.getElementById('team-3').onclick = function() { selectTeam(3); };
 
-        // 수정 버튼
-        const editButton = document.createElement('button');
-        editButton.textContent = '수정';
-        editButton.onclick = () => {
-          loadMaterialForEdit(key, material);
-        };
-
-        // 삭제 버튼
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = '삭제';
-        deleteButton.onclick = () => {
-          if (window.confirm("삭제하시겠습니까?")) {
-            deleteMaterial(key);
-          }
-        };
-
-        div.appendChild(editButton);
-        div.appendChild(deleteButton);
-        materialListDiv.appendChild(div);
-      }
+    function selectTeam(teamId) {
+      selectedTeam = teamId;
+      document.getElementById('team-cards').style.display = 'none';
+      document.getElementById('warehouse-cards').style.display = 'block';
     }
 
-    // 자재 수정 폼에 데이터 로드
-    function loadMaterialForEdit(key, material) {
-      document.getElementById('material-name').value = material.name;
-      document.getElementById('material-quantity').value = material.quantity;
+    // 창고 선택 시 자재 관리 폼 보이기
+    document.getElementById('warehouse-1').onclick = function() { selectWarehouse(1); };
+    document.getElementById('warehouse-2').onclick = function() { selectWarehouse(2); };
+    document.getElementById('warehouse-3').onclick = function() { selectWarehouse(3); };
+    document.getElementById('warehouse-4').onclick = function() { selectWarehouse(4); };
 
-      // 수정하기 버튼 클릭 시 데이터베이스에 수정된 데이터 저장
-      const saveButton = document.getElementById('save-material-button');
-      saveButton.onclick = () => {
-        if (window.confirm("수정하시겠습니까?")) {
-          saveMaterialEdits(key);
+    function selectWarehouse(warehouseId) {
+      selectedWarehouse = warehouseId;
+      document.getElementById('warehouse-cards').style.display = 'none';
+      document.getElementById('material-form').style.display = 'block';
+      loadMaterialData();
+    }
+
+    // 선택된 창고에 해당하는 자재 데이터를 로드하는 함수 (Firebase에서 데이터 가져오기)
+    function loadMaterialData() {
+      const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials`);
+      materialRef.once('value', function(snapshot) {
+        const materials = snapshot.val();
+        // 자재 데이터가 있으면 폼에 표시
+        if (materials) {
+          // 예시로 첫 번째 자재를 수정 폼에 표시
+          const material = materials[Object.keys(materials)[0]];
+          document.getElementById('material-name').value = material.name;
+          document.getElementById('material-quantity').value = material.quantity;
         }
-      };
+      });
     }
 
-    // 수정된 자재 데이터 저장
-    function saveMaterialEdits(key) {
-      const updatedName = document.getElementById('material-name').value;
-      const updatedQuantity = document.getElementById('material-quantity').value;
-
-      const materialToUpdate = {
-        name: updatedName,
-        quantity: updatedQuantity
-      };
-
-      // Firebase에 수정된 데이터 저장
-      const materialRefToUpdate = db.ref('materials/' + key);
-      materialRefToUpdate.set(materialToUpdate);
-
-      // 수정 후 폼 초기화
-      document.getElementById('material-name').value = '';
-      document.getElementById('material-quantity').value = '';
-    }
-
-    // 자재 추가
-    document.getElementById('add-material-btn').onclick = function() {
+    // 자재 수정/저장
+    document.getElementById('save-material').onclick = function() {
       const name = document.getElementById('material-name').value;
       const quantity = document.getElementById('material-quantity').value;
 
-      if (name && quantity) {
-        const newMaterialRef = materialRef.push();
-        newMaterialRef.set({
-          name: name,
-          quantity: quantity
-        });
+      const materialToSave = {
+        name: name,
+        quantity: quantity
+      };
 
-        // 자재 추가 후 입력창 초기화
-        document.getElementById('material-name').value = '';
-        document.getElementById('material-quantity').value = '';
-      }
+      const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials`);
+      materialRef.push(materialToSave);
     };
 
     // 자재 삭제
-    function deleteMaterial(key) {
-      const materialToDeleteRef = db.ref('materials/' + key);
-      materialToDeleteRef.remove();
-    }
-
-    // 설정 버튼 클릭 시 메뉴 보이기
-    document.getElementById('settings-button').onclick = function() {
-      const settingsMenu = document.getElementById('settings-menu');
-      settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'block' : 'none';
+    document.getElementById('delete-material').onclick = function() {
+      const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials`);
+      materialRef.remove();
     };
   </script>
 
