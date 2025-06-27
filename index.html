@@ -55,8 +55,7 @@
     <input type="text" id="material-name" />
     <label for="material-quantity">수량:</label>
     <input type="number" id="material-quantity" />
-    <button id="save-material" class="button">저장</button>
-    <button id="delete-material" class="button">삭제</button>
+    <button id="save-material" class="button">자재 추가</button> <!-- '저장' -> '자재 추가'로 변경 -->
   </div>
 
   <!-- Firebase SDK -->
@@ -186,12 +185,11 @@
     };
 
     // 자재 삭제
-    document.getElementById('delete-material').onclick = function() {
-      const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials/${selectedMaterialKey}`);
+    function deleteMaterial(key) {
+      const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials/${key}`);
       materialRef.remove(); // 자재 삭제
       loadMaterialData(); // 자재 목록 다시 로드
-      document.getElementById('material-form').style.display = 'none'; // 수정 폼 숨기기
-    };
+    }
 
     // 자재 추가
     document.getElementById('add-material-btn').onclick = function() {
@@ -227,7 +225,6 @@
       }
 
       loadMaterialData(); // 자재 목록 다시 로드
-      document.getElementById('material-form').style.display = 'none'; // 수정 폼 숨기기
     };
 
     // 설정 버튼 클릭 시 자재 목록 옆의 수정/삭제 버튼 보이기/숨기기
