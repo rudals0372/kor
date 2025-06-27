@@ -14,7 +14,7 @@
       text-align: center;
     }
     .button { padding: 10px 20px; }
-    #material-form, #warehouse-cards, #team-cards, #material-list, #settings-menu { display: none; }
+    #material-form, #warehouse-cards, #team-cards, #material-list { display: none; }
   </style>
 </head>
 <body>
@@ -43,15 +43,7 @@
   <div id="material-list" class="hidden">
     <h3>자재 목록</h3>
     <div id="material-list-container"></div> <!-- 자재 항목들이 여기에 표시됨 -->
-    <!-- 설정 버튼을 클릭하면 자재 추가 및 수정/삭제 버튼이 보이도록 설정 -->
     <button id="settings-button" class="button">설정</button>
-    <div id="settings-menu" class="hidden">
-      <button id="add-material-btn" class="button">자재 추가</button>
-      <button id="edit-delete-buttons" class="hidden">
-        <button id="edit-material-btn" class="button">수정</button>
-        <button id="delete-material-btn" class="button">삭제</button>
-      </button>
-    </div>
   </div>
 
   <!-- 자재 수정/추가 폼 -->
@@ -141,16 +133,18 @@
           div.className = 'card';
           div.textContent = `${material.name}: ${material.quantity}`;
 
-          // 수정 버튼
+          // 수정 버튼 (기본적으로 숨기기)
           const editButton = document.createElement('button');
           editButton.textContent = '수정';
+          editButton.classList.add('hidden');
           editButton.onclick = () => {
             loadMaterialForEdit(key, material);
           };
 
-          // 삭제 버튼
+          // 삭제 버튼 (기본적으로 숨기기)
           const deleteButton = document.createElement('button');
           deleteButton.textContent = '삭제';
+          deleteButton.classList.add('hidden');
           deleteButton.onclick = () => {
             if (window.confirm("삭제하시겠습니까?")) {
               deleteMaterial(key);
@@ -234,10 +228,18 @@
       document.getElementById('material-form').style.display = 'none'; // 수정 폼 숨기기
     };
 
-    // 설정 버튼 클릭 시 자재 추가/삭제 버튼 보이기
+    // 설정 버튼 클릭 시 자재 목록 옆의 수정/삭제 버튼 보이기/숨기기
     document.getElementById('settings-button').onclick = function() {
-      const settingsMenu = document.getElementById('settings-menu');
-      settingsMenu.style.display = settingsVisible ? 'none' : 'block'; // 설정 메뉴 보이기/숨기기
+      const editDeleteButtons = document.querySelectorAll('#material-list-container button');
+      
+      editDeleteButtons.forEach(button => {
+        if (button.classList.contains('hidden')) {
+          button.classList.remove('hidden');
+        } else {
+          button.classList.add('hidden');
+        }
+      });
+
       settingsVisible = !settingsVisible; // 상태 토글
     };
   </script>
