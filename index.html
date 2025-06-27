@@ -11,6 +11,7 @@
       margin: 10px;
       border: 1px solid #ccc;
       cursor: pointer;
+      text-align: center;
     }
     .button { padding: 10px 20px; }
     #material-form, #warehouse-cards, #team-cards { display: none; }
@@ -20,11 +21,11 @@
 
   <h1>자재 관리 시스템</h1>
 
-  <!-- 자재 현황 카드 -->
+  <!-- 자재 현황 카드 (맨 처음 보여지는 카드) -->
   <div id="material-status-card" class="card">자재 현황 보기</div>
 
   <!-- 팀 선택 카드들 -->
-  <div id="team-cards">
+  <div id="team-cards" class="hidden">
     <div class="card" id="team-1">팀 1</div>
     <div class="card" id="team-2">팀 2</div>
     <div class="card" id="team-3">팀 3</div>
@@ -74,7 +75,8 @@
 
     // 자재 현황 카드 클릭 시 팀 선택 카드 보이기
     document.getElementById('material-status-card').onclick = function() {
-      document.getElementById('team-cards').style.display = 'block';
+      document.getElementById('material-status-card').style.display = 'none'; // 자재 현황 카드는 숨김
+      document.getElementById('team-cards').style.display = 'block'; // 팀 선택 카드 보이기
     };
 
     // 팀 선택 시 창고 카드 보이기
@@ -84,8 +86,8 @@
 
     function selectTeam(teamId) {
       selectedTeam = teamId;
-      document.getElementById('team-cards').style.display = 'none';
-      document.getElementById('warehouse-cards').style.display = 'block';
+      document.getElementById('team-cards').style.display = 'none'; // 팀 카드 숨김
+      document.getElementById('warehouse-cards').style.display = 'block'; // 창고 카드 보이기
     }
 
     // 창고 선택 시 자재 관리 폼 보이기
@@ -96,8 +98,8 @@
 
     function selectWarehouse(warehouseId) {
       selectedWarehouse = warehouseId;
-      document.getElementById('warehouse-cards').style.display = 'none';
-      document.getElementById('material-form').style.display = 'block';
+      document.getElementById('warehouse-cards').style.display = 'none'; // 창고 카드 숨김
+      document.getElementById('material-form').style.display = 'block'; // 자재 관리 폼 보이기
       loadMaterialData();
     }
 
@@ -127,13 +129,13 @@
       };
 
       const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials`);
-      materialRef.push(materialToSave);
+      materialRef.push(materialToSave); // 새로운 자재 추가
     };
 
     // 자재 삭제
     document.getElementById('delete-material').onclick = function() {
       const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials`);
-      materialRef.remove();
+      materialRef.remove(); // 해당 자재 삭제
     };
   </script>
 
