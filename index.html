@@ -43,7 +43,7 @@
   <div id="material-list" class="hidden">
     <h3>자재 목록</h3>
     <div id="material-list-container"></div> <!-- 자재 항목들이 여기에 표시됨 -->
-    <!-- 설정 버튼을 클릭하면 자재 추가 및 수정/삭제 버튼이 보이도록 설정 -->
+    <!-- 설정 버튼을 클릭하면 자재 수정/삭제 버튼이 보이도록 설정 -->
     <button id="settings-button" class="button">설정</button>
   </div>
 
@@ -231,12 +231,13 @@
 
     // 설정 버튼 클릭 시 자재 목록 옆의 수정/삭제 버튼 보이기/숨기기
     document.getElementById('settings-button').onclick = function() {
-      const editButtons = document.querySelectorAll('#material-list-container .card button:nth-child(1)');
-      const deleteButtons = document.querySelectorAll('#material-list-container .card button:nth-child(2)');
+      const buttons = document.querySelectorAll('#material-list-container .card button');
       
-      // 수정 및 삭제 버튼 보이기/숨기기
-      editButtons.forEach(button => button.classList.toggle('hidden'));
-      deleteButtons.forEach(button => button.classList.toggle('hidden'));
+      buttons.forEach(button => {
+        button.classList.toggle('hidden'); // 수정 및 삭제 버튼 보이기/숨기기
+      });
+
+      settingsVisible = !settingsVisible; // 상태 토글
     };
   </script>
 
