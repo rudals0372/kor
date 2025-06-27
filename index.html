@@ -14,7 +14,7 @@
       text-align: center;
     }
     .button { padding: 10px 20px; }
-    #material-form, #warehouse-cards, #team-cards, #material-list { display: none; }
+    #material-form, #warehouse-cards, #team-cards, #material-list, #settings-menu { display: none; }
   </style>
 </head>
 <body>
@@ -43,7 +43,11 @@
   <div id="material-list" class="hidden">
     <h3>자재 목록</h3>
     <div id="material-list-container"></div> <!-- 자재 항목들이 여기에 표시됨 -->
-    <button id="add-material-btn" class="button">자재 추가</button>
+    <button id="settings-button" class="button">설정</button>
+    <div id="settings-menu" class="hidden">
+      <button id="add-material-btn" class="button">자재 추가</button>
+      <button id="delete-material-btn" class="button">자재 삭제</button>
+    </div>
   </div>
 
   <!-- 자재 수정/추가 폼 -->
@@ -223,6 +227,12 @@
 
       loadMaterialData(); // 자재 목록 다시 로드
       document.getElementById('material-form').style.display = 'none'; // 수정 폼 숨기기
+    };
+
+    // 설정 버튼 클릭 시 자재 추가/삭제 버튼 보이기
+    document.getElementById('settings-button').onclick = function() {
+      const settingsMenu = document.getElementById('settings-menu');
+      settingsMenu.style.display = settingsMenu.style.display === 'none' ? 'block' : 'none'; // 설정 메뉴 보이기/숨기기
     };
   </script>
 
