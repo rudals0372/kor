@@ -231,13 +231,12 @@
 
     // 설정 버튼 클릭 시 자재 목록 옆의 수정/삭제 버튼 보이기/숨기기
     document.getElementById('settings-button').onclick = function() {
-      const buttons = document.querySelectorAll('#material-list-container button');
+      const editButtons = document.querySelectorAll('#material-list-container .card button:nth-child(1)');
+      const deleteButtons = document.querySelectorAll('#material-list-container .card button:nth-child(2)');
       
-      buttons.forEach(button => {
-        button.classList.toggle('hidden'); // 수정 및 삭제 버튼 보이기/숨기기
-      });
-
-      settingsVisible = !settingsVisible; // 상태 토글
+      // 수정 및 삭제 버튼 보이기/숨기기
+      editButtons.forEach(button => button.classList.toggle('hidden'));
+      deleteButtons.forEach(button => button.classList.toggle('hidden'));
     };
   </script>
 
