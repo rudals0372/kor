@@ -43,6 +43,7 @@
   <div id="material-list" class="hidden">
     <h3>자재 목록</h3>
     <div id="material-list-container"></div> <!-- 자재 항목들이 여기에 표시됨 -->
+    <button id="add-material-btn" class="button">자재 추가</button>
   </div>
 
   <!-- 자재 수정/추가 폼 -->
@@ -183,6 +184,43 @@
     document.getElementById('delete-material').onclick = function() {
       const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials/${selectedMaterialKey}`);
       materialRef.remove(); // 자재 삭제
+      loadMaterialData(); // 자재 목록 다시 로드
+      document.getElementById('material-form').style.display = 'none'; // 수정 폼 숨기기
+    };
+
+    // 자재 추가
+    document.getElementById('add-material-btn').onclick = function() {
+      document.getElementById('material-name').value = '';
+      document.getElementById('material-quantity').value = '';
+      document.getElementById('material-form').style.display = 'block'; // 자재 추가 폼 보이기
+      selectedMaterialKey = null; // 자재 추가 모드
+    };
+
+    // 자재 추가/저장 버튼
+    document.getElementById('save-material').onclick = function() {
+      const name = document.getElementById('material-name').value;
+      const quantity = document.getElementById('material-quantity').value;
+
+      if (!name || !quantity) {
+        alert('자재 이름과 수량을 모두 입력하세요!');
+        return;
+      }
+
+      const materialToSave = {
+        name: name,
+        quantity: quantity
+      };
+
+      // 자재 추가
+      if (!selectedMaterialKey) {
+        const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials`);
+        materialRef.push(materialToSave); // 자재 추가
+      } else {
+        // 자재 수정
+        const materialRef = db.ref(`teams/team${selectedTeam}/warehouses/warehouse${selectedWarehouse}/materials/${selectedMaterialKey}`);
+        materialRef.set(materialToSave); // 자재 수정
+      }
+
       loadMaterialData(); // 자재 목록 다시 로드
       document.getElementById('material-form').style.display = 'none'; // 수정 폼 숨기기
     };
