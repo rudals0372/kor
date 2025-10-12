@@ -26,7 +26,27 @@
     .btn{ display:inline-flex; align-items:center; gap:6px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:#fff; cursor:pointer }
     .u-hidden{ visibility:hidden }
     .u-truncate{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
-    .list{ display:flex; flex-direction:column; gap:12px }
+    .list{ display:flex; flex-direction:column; gap:
+      
+    @media (prefers-color-scheme: dark) {
+  body {
+    background: #111;
+    color: #f5f5f5;
+  }
+  .card, .row, .inv-row {
+    background: #222;
+    border-color: #333;
+  }
+  .topbar {
+    background: #1a1a1a;
+    border-color: #333;
+  }
+  .btn, .inv-btn, .inv-input {
+    background: #333;
+    color: #eee;
+    border-color: #444;
+  }
+}
   </style>
 </head>
 <body>
@@ -885,3 +905,4 @@
 
 </body>
 </html>
+
