@@ -902,8 +902,28 @@
     window.addEventListener('hashchange', stopSpeak);
   })();
   </script>
-
+<!-- ✅ 자재내역 다크모드 보정 -->
+<style id="inv-dark-override">
+@media (prefers-color-scheme: dark) {
+  .inv-row,
+  .inv-card,
+  .inv-toolbar {
+    background: #222 !important;
+    border-color: #333 !important;
+  }
+  .inv-btn,
+  .inv-input {
+    background: #333 !important;
+    color: #eee !important;
+    border-color: #444 !important;
+  }
+  .inv-muted {
+    color: #c7c7c7 !important;
+  }
+}
+</style>
 </body>
 </html>
+
 
 
