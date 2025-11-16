@@ -271,8 +271,10 @@ function renderDevice(catId, devId){
   $title.textContent = `${cat.name} · ${dev.name}`;
   $back.classList.remove('u-hidden');
 
-  $app.innerHTML = `<section class="device"><div class="list" id="manList"></div></section>`;
+  $app.innerHTML = `<section class="device"><div class="list" id="manList"></div><div id="mediaContainer" style="margin-top:16px;"></div></section>`;
   const $list = document.getElementById('manList');
+  const $media = document.getElementById('mediaContainer');
+
   dev.manuals.forEach(m => {
     const row = document.createElement('div');
     row.className = 'row row--manual';
@@ -282,13 +284,12 @@ function renderDevice(catId, devId){
     if(m.url){
       btn.addEventListener('click', () => {
         if(m.url.endsWith('.mp4')){
-          // 동영상이면 새 탭에서 실행
-          const w = window.open('', '_blank');
-          w.document.write(`
-            <video src="${m.url}" controls autoplay style="width:100%;height:100%;"></video>
-          `);
+          // 동영상이면 기존 화면에 삽입
+          $media.innerHTML = `<video src="${m.url}" controls autoplay style="width:100%; max-height:500px;"></video>`;
+          // 선택한 동영상 제목 표시
+          $title.textContent = `${cat.name} · ${dev.name} · ${m.title}`;
         } else {
-          // PDF 기존 처리
+          // PDF는 기존 처리
           openPDF(m.url);
         }
       });
@@ -300,6 +301,7 @@ function renderDevice(catId, devId){
     $list.appendChild(row);
   });
 }
+
 
 
   function openPDF(url){
@@ -757,6 +759,7 @@ function renderDevice(catId, devId){
 </style>
 </body>
 </html
+
 
 
 
