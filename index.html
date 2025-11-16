@@ -264,30 +264,43 @@
     });
   }
 
-  function renderDevice(catId, devId){
-    const cat = APP_DATA.categories.find(c => c.id === catId);
-    const dev = cat?.devices?.find(d => d.id === devId);
-    if(!cat || !dev) return setHash('#/');
-    $title.textContent = `${cat.name} · ${dev.name}`;
-    $back.classList.remove('u-hidden');
+function renderDevice(catId, devId){
+  const cat = APP_DATA.categories.find(c => c.id === catId);
+  const dev = cat?.devices?.find(d => d.id === devId);
+  if(!cat || !dev) return setHash('#/');
+  $title.textContent = `${cat.name} · ${dev.name}`;
+  $back.classList.remove('u-hidden');
 
-    $app.innerHTML = `<section class="device"><div class="list" id="manList"></div></section>`;
-    const $list = document.getElementById('manList');
-    dev.manuals.forEach(m => {
-      const row = document.createElement('div');
-      row.className = 'row row--manual';
-      row.innerHTML = `<div class="row__main"><h5 class="row__title u-truncate">${m.title}</h5><p class="row__desc u-truncate">PDF</p></div><button class="btn btn--view" type="button">보기</button>`;
-      const btn = row.querySelector('.btn--view');
-      if(m.url){
-        btn.addEventListener('click', () => openPDF(m.url));
-        btn.title = `${m.title} 열기`;
-      } else {
-        btn.disabled = true;
-        btn.title = 'PDF 경로가 설정되지 않았습니다';
-      }
-      $list.appendChild(row);
-    });
-  }
+  $app.innerHTML = `<section class="device"><div class="list" id="manList"></div></section>`;
+  const $list = document.getElementById('manList');
+  dev.manuals.forEach(m => {
+    const row = document.createElement('div');
+    row.className = 'row row--manual';
+    row.innerHTML = `<div class="row__main"><h5 class="row__title u-truncate">${m.title}</h5><p class="row__desc u-truncate">${m.url?.endsWith('.mp4') ? '동영상' : 'PDF'}</p></div><button class="btn btn--view" type="button">보기</button>`;
+    
+    const btn = row.querySelector('.btn--view');
+    if(m.url){
+      btn.addEventListener('click', () => {
+        if(m.url.endsWith('.mp4')){
+          // 동영상이면 새 탭에서 실행
+          const w = window.open('', '_blank');
+          w.document.write(`
+            <video src="${m.url}" controls autoplay style="width:100%;height:100%;"></video>
+          `);
+        } else {
+          // PDF 기존 처리
+          openPDF(m.url);
+        }
+      });
+      btn.title = `${m.title} 열기`;
+    } else {
+      btn.disabled = true;
+      btn.title = '경로가 설정되지 않았습니다';
+    }
+    $list.appendChild(row);
+  });
+}
+
 
   function openPDF(url){
     const normalized = (u=>{
@@ -744,6 +757,7 @@
 </style>
 </body>
 </html
+
 
 
 
